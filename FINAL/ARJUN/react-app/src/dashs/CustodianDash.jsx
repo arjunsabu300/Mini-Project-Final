@@ -8,6 +8,8 @@ import {jwtDecode} from "jwt-decode";
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
+import Modal from '@mui/material/Modal';
+import Box from '@mui/material/Box';
 
 const handleLogout = (navigate) => {
     sessionStorage.removeItem("token"); // Remove the token from storage
@@ -23,6 +25,7 @@ const CustodianDash = () => {
     const [premisename,setPremisename]= useState("");
     const [role,setRole]=useState(null);
     const [notifications, setNotifications] = useState([]);
+    const [handoverPopup, setHandoverPopup] = useState(false);
     const navigate= useNavigate();
 
     useEffect(() => {
@@ -82,8 +85,9 @@ const CustodianDash = () => {
             <Header username={username} currentdate={currentdate} premisename={premisename}/>
             <div className="main-area">
                 <Sidebardash sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} role={role} />
-                <Dashboard notifications={notifications} navigate={navigate} />
+                <Dashboard notifications={notifications} navigate={navigate} setHandoverPopup={setHandoverPopup} />
             </div>
+            <HandoverPopup open={handoverPopup} onClose={() => setHandoverPopup(false)} navigate={navigate} />
         </div>
     );
 };
@@ -102,7 +106,7 @@ const Header = ({username,currentdate,premisename}) => (
 );
 
 
-const Dashboard = ({notifications,navigate}) => (
+const Dashboard = ({notifications,navigate,setHandoverPopup }) => (
     <main className="dashboard">
         <div className="dashboard-header">
             <h1>Dashboard</h1>
@@ -113,7 +117,7 @@ const Dashboard = ({notifications,navigate}) => (
                 <Link to="/maintenancehist"><Button className='action-button' variant="contained">Maintenance History</Button></Link>
                 <Button onClick={()=>{handlesendmail()}} className='action-button' variant="contained">Send Email</Button>
                 <Button className='action-button' variant="contained">Transfer Log Details</Button>
-                <Button className='action-button' variant="contained">Stock Handover</Button>
+                <Button className='action-button' variant="contained" onClick={() => setHandoverPopup(true)}>Stock Handover</Button>
         </div>
         <LogoutButton navigate={navigate} />
     </main>
@@ -136,6 +140,55 @@ const Notifications = ({ notifications }) => (
         <Link to="/notify">View All</Link>
     </div>
 );
+
+const HandoverPopup = ({ open, onClose, navigate }) => {
+    const handleHandover = async () => {
+        try {
+            const token = sessionStorage.getItem("token");
+            if (!token) {
+                alert("User not authenticated.");
+                return;
+            }
+            const decoded = jwtDecode(token);
+            const senderEmail = decoded.email;
+
+            console.log("🚀 Initiating handover for:", senderEmail);
+
+            const response = await fetch("http://localhost:5000/api/handover", {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ senderEmail }),
+            });
+
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.error || "Failed to process handover.");
+            }
+
+            alert(data.message);
+            onClose();
+        } catch (error) {
+            console.error("Error processing handover:", error);
+            alert(error.message || "Error processing handover.");
+        }
+    };
+
+    return (
+        <Modal open={open} onClose={onClose} aria-labelledby="handover-modal" aria-describedby="handover-description">
+            <Box className="handover-modal">
+                <h2>Confirm Handover</h2>
+                <p>By continuing, you will lose all access to the rooms. Are you sure you want to proceed?</p>
+                <div className="modal-actions">
+                    <Button variant="contained" color="secondary" onClick={onClose}>Cancel</Button>
+                    <Button variant="contained" color="primary" onClick={handleHandover}>Confirm</Button>
+                </div>
+            </Box>
+        </Modal>
+    );
+};
 
 const LogoutButton = ({navigate}) => (
     <button className="logout-button">

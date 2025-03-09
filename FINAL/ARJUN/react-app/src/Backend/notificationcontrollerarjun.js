@@ -53,7 +53,7 @@ router.get("/api/fetch-notifications", async (req, res) => {
 
         const verifysnotification= await VerifyNotification.find({receiver: receiver,status: "unread",type:"verifier_report"});
 
-
+        const stockHandoverNotifications = await HandoverStockNotification.find({ receiver, status: "unread",type: "stockhandover" });
 
         // 🔄 Process TskForwardNotifications
         const detailedTskNotifications = await Promise.all(
@@ -194,6 +194,19 @@ router.get("/api/fetch-notifications", async (req, res) => {
             })
         );
 
+
+       
+
+        const stockHandover = stockHandoverNotifications.map((handoverNotif) => ({
+            _id: handoverNotif._id,
+            type: handoverNotif.type,
+            sender: handoverNotif.sender,
+            room_no: handoverNotif.room_no,
+            room_name: handoverNotif.room_name,
+            status: handoverNotif.status,
+            createdAt: handoverNotif.createdAt,
+        }));
+
         // ✅ Merge all notifications
         const allNotifications = [
             ...detailedTskNotifications,
@@ -204,6 +217,7 @@ router.get("/api/fetch-notifications", async (req, res) => {
             ...detailedSicStockRejectNotifications,
             ...assignNotifications, 
             ...verifyNotifications,
+            ...stockHandover,
         ];
 
         // ✅ Send processed notifications to frontend
