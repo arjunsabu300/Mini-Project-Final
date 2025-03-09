@@ -4,10 +4,24 @@ import loginimage from "../assets/loginimg.png";
 
 function Deleteacc() {
   const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log("Email:", email);
+
+    try {
+      const response = await fetch("http://localhost:5000/api/delete-account", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+      setMessage(data.message);
+    } catch (error) {
+      setMessage("Error deleting account");
+      console.error("Error:", error);
+    }
   };
 
   return (
@@ -15,9 +29,7 @@ function Deleteacc() {
       <div className="deleteacc-container">
         <div className="dc-form-container">
           <div className="dc-header">
-            <div className="box">
-                
-            </div>
+            <div className="box"></div>
             <h1>Remove Account</h1>
           </div>
           <form onSubmit={handleSubmit} className="dc-form">
@@ -35,15 +47,11 @@ function Deleteacc() {
             <div className="delete-button">
               <button type="submit">Delete Account</button>
             </div>
-            
           </form>
+          {message && <p className="message">{message}</p>}
         </div>
         <div className="dc-image-container">
-          <img
-            src= {loginimage}
-            alt="Illustration"
-            className="dc-image"
-          />
+          <img src={loginimage} alt="Illustration" className="dc-image" />
         </div>
       </div>
     </div>
@@ -51,3 +59,4 @@ function Deleteacc() {
 }
 
 export default Deleteacc;
+

@@ -28,6 +28,9 @@ import SicStockAcceptNotfSenderRoutes from "./src/Backend/SicStockAcceptNotfSend
 import hodforwardactionRoutes from "./src/Backend/hodforwardaction.js";
 import markreadRoutes from "./src/Backend/markread.js"
 import sicrejecterRoutes from "./src/Backend/sicrejecter.js";
+import roomRoutes from "./src/Backend/roomRoutes.js"
+import deleteaccRoutes from "./src/Backend/deleteacc.js";
+
 
 dotenv.config();
 const app = express();
@@ -66,6 +69,8 @@ app.use(SicStockAcceptNotfSenderRoutes);
 app.use(hodforwardactionRoutes);
 app.use(markreadRoutes);
 app.use(sicrejecterRoutes);
+app.use("/api/rooms", roomRoutes);
+app.use(deleteaccRoutes);
 
 
 const PORT = process.env.PORT || 5000;

@@ -32,6 +32,7 @@ import MainStockdetails from "./MainStock/MainStockdetails";
 import ForwardStockTsk from "./ForwardStockTsk/ForwardStockTsk";
 import ForwardStockHOD from "./ForwardStockHOD/ForwardStockHOD";
 import AddStockforward from "./addstocksicforward/Addstockforward";
+import NewStockSystem from "./newstocksystem/NewStockSystem"
 
 function App() {
   return (
@@ -68,6 +69,7 @@ function App() {
         <Route path="/forwardstocktsk" element={<ForwardStockTsk/>}/>
         <Route path="/forwardstockhod" element={<ForwardStockHOD/>}/>
         <Route path="/addstockforward" element={<AddStockforward/>}/>
+        <Route path="/newstocksystem" element={<NewStockSystem />} />
       </Routes>
     </Router>
   );
