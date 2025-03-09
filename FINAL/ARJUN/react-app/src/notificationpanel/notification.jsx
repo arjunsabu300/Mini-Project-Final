@@ -20,15 +20,15 @@ const Notifications = () => {
                 const decoded = jwtDecode(token);
                 const userEmail = decoded.email;
 
-                // ✅ Fetch notifications
                 const response = await axios.get("http://localhost:5000/api/fetch-notifications", {
                     params: { receiver: userEmail },
-                    headers: { Authorization: `Bearer ${token}` } // ✅ Include token in request
+                    headers: { Authorization: `Bearer ${token}` },
                 });
+
                 let fetchedNotifications = response.data.data;
                 console.log("📩 Raw Notifications:", fetchedNotifications);
 
-                // 🔍 Type-Based Filtering
+                // Filter valid notifications
                 const validNotifications = fetchedNotifications.filter((notif) => {
                     if (notif.type === "tskstockforward") {
                         return notif.indent_no && notif.sl_no && notif.quantity;
@@ -54,7 +54,7 @@ const Notifications = () => {
                     if (notif.type === "verifier_report") {
                         return notif.verifier_email && notif.verifier_name && notif.verify_date;
                     }
-                    return false; // Exclude all other notification types
+                    return false;
                 });
 
                 console.log("✅ Filtered Notifications:", validNotifications);
@@ -79,10 +79,10 @@ const Notifications = () => {
             await axios.post(
                 "http://localhost:5000/api/Add-account",
                 { notifId },
-                { headers: { Authorization: `Bearer ${token}` } } // ✅ Include token
+                { headers: { Authorization: `Bearer ${token}` } }
             );
 
-            setNotifications(notifications.filter((n) => n._id !== notifId)); // Remove from UI
+            setNotifications(notifications.filter((n) => n._id !== notifId));
             console.log(`✅ Notification ${notifId} accepted.`);
         } catch (error) {
             console.error("❌ Error accepting notification:", error);
@@ -100,155 +100,177 @@ const Notifications = () => {
             await axios.post(
                 "http://localhost:5000/api/report/reportviews",
                 { notifId },
-                { headers: { Authorization: `Bearer ${token}` } } // ✅ Include token
+                { headers: { Authorization: `Bearer ${token}` } }
             );
-            
-            //navigate(`/reportverify/${notifId}`);
-            setNotifications(notifications.filter((n) => n._id !== notifId)); // Remove from UI
-            
-            console.log(`✅ Notification ${notifId} accepted.`);
+
+            setNotifications(notifications.filter((n) => n._id !== notifId));
+            console.log(`✅ Notification ${notifId} viewed.`);
         } catch (error) {
-            console.error("❌ Error accepting notification:", error);
+            console.error("❌ Error viewing notification:", error);
         }
     };
-
 
     const handleAccept = async (notifId) => {
-        try {
-            const token = sessionStorage.getItem("token");
-            if (!token) {
-                console.error("❌ No token found. User is not authenticated.");
-                return;
-            }
-
-            await axios.post(
-                "http://localhost:5000/api/accept-notification",
-                { notifId },
-                { headers: { Authorization: `Bearer ${token}` } } // ✅ Include token
-            );
-
-            setNotifications(notifications.filter((n) => n._id !== notifId)); // Remove from UI
-            console.log(`✅ Notification ${notifId} accepted.`);
-        } catch (error) {
-            console.error("❌ Error accepting notification:", error);
-        }
-    };
-
-    const handleReject = async (notifId) => {
-        try {
-            const token = sessionStorage.getItem("token");
-            if (!token) {
-                console.error("❌ No token found. User is not authenticated.");
-                return;
-            }
-
-            await axios.post(
-                "http://localhost:5000/api/reject-notification",
-                { notifId },
-                { headers: { Authorization: `Bearer ${token}` } } // ✅ Include token
-            );
-
-            setNotifications(notifications.filter((n) => n._id !== notifId)); // Remove from UI
-            console.log(`❌ Notification ${notifId} rejected.`);
-        } catch (error) {
-            console.error("❌ Error rejecting notification:", error);
-        }
-    };
-
-    const handleMarkRead = async (notifId) => {
-        try {
-          await axios.post("http://localhost:5000/api/mark-notification-read", {
-            notifId,
-          });
-          setNotifications(notifications.filter((n) => n._id !== notifId));
-        } catch (error) {
-          console.error("❌ Error marking notification as read:", error);
-        }
-      };
-    
-      const handleAction = async (notifId, action) => {
-        try {
+      try {
           const token = sessionStorage.getItem("token");
           if (!token) {
-            console.error("❌ No token found. User is not authenticated.");
-            return;
+              console.error("❌ No token found. User is not authenticated.");
+              return;
           }
-    
-          const endpoint =
-            action === "accept"
-              ? "http://localhost:5000/api/accept-notification-h"
-              : "http://localhost:5000/api/reject-notification-h";
-    
+
           await axios.post(
-            endpoint,
+              "http://localhost:5000/api/accept-notification",
+              { notifId },
+              { headers: { Authorization: `Bearer ${token}` } } // ✅ Include token
+          );
+
+          setNotifications(notifications.filter((n) => n._id !== notifId)); // Remove from UI
+          console.log(`✅ Notification ${notifId} accepted.`);
+      } catch (error) {
+          console.error("❌ Error accepting notification:", error);
+      }
+  };
+
+  const handleReject = async (notifId) => {
+      try {
+          const token = sessionStorage.getItem("token");
+          if (!token) {
+              console.error("❌ No token found. User is not authenticated.");
+              return;
+          }
+
+          await axios.post(
+              "http://localhost:5000/api/reject-notification",
+              { notifId },
+              { headers: { Authorization: `Bearer ${token}` } } // ✅ Include token
+          );
+
+          setNotifications(notifications.filter((n) => n._id !== notifId)); // Remove from UI
+          console.log(`❌ Notification ${notifId} rejected.`);
+      } catch (error) {
+          console.error("❌ Error rejecting notification:", error);
+      }
+  };
+
+  const handleMarkRead = async (notifId) => {
+      try {
+        await axios.post("http://localhost:5000/api/mark-notification-read", {
+          notifId,
+        });
+        setNotifications(notifications.filter((n) => n._id !== notifId));
+      } catch (error) {
+        console.error("❌ Error marking notification as read:", error);
+      }
+    };
+  
+    const handleAction = async (notifId, action) => {
+      try {
+        const token = sessionStorage.getItem("token");
+        if (!token) {
+          console.error("❌ No token found. User is not authenticated.");
+          return;
+        }
+  
+        const endpoint =
+          action === "accept"
+            ? "http://localhost:5000/api/accept-notification-h"
+            : "http://localhost:5000/api/reject-notification-h";
+  
+        await axios.post(
+          endpoint,
+          { notifId },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+  
+        setNotifications(notifications.filter((n) => n._id !== notifId));
+      } catch (error) {
+        console.error(`❌ Error ${action}ing notification:`, error);
+      }
+    };
+  
+    const handleHodStockAction = async (notifId, action) => {
+      try {
+        const token = sessionStorage.getItem("token");
+        if (!token) {
+          console.error("❌ No token found. User is not authenticated.");
+          return;
+        }
+  
+        if (action === "accept") {
+          axios
+            .post("http://localhost:5000/api/create-sicstockaccept", { notifId })
+            .then((response) => {
+              console.log(
+                "✅ SicStockAccept Notification Created:",
+                response.data
+              );
+            })
+            .catch((error) => {
+              console.error(
+                "❌ Error creating SicStockAccept notification:",
+                error
+              );
+            })
+            .finally(() => {
+              navigate(`/addstockforward?notifId=${notifId}`);
+            });
+        } else {
+          //this is to reject forwarded stock by hod by SIC even though api call is called hod-reject
+          await axios.post(
+            "http://localhost:5000/api/hod-reject-notification",
             { notifId },
             { headers: { Authorization: `Bearer ${token}` } }
           );
-    
           setNotifications(notifications.filter((n) => n._id !== notifId));
-        } catch (error) {
-          console.error(`❌ Error ${action}ing notification:`, error);
         }
-      };
-    
-      const handleHodStockAction = async (notifId, action) => {
-        try {
-          const token = sessionStorage.getItem("token");
-          if (!token) {
-            console.error("❌ No token found. User is not authenticated.");
-            return;
-          }
-    
-          if (action === "accept") {
-            axios
-              .post("http://localhost:5000/api/create-sicstockaccept", { notifId })
-              .then((response) => {
-                console.log(
-                  "✅ SicStockAccept Notification Created:",
-                  response.data
-                );
-              })
-              .catch((error) => {
-                console.error(
-                  "❌ Error creating SicStockAccept notification:",
-                  error
-                );
-              })
-              .finally(() => {
-                navigate(`/addstockforward?notifId=${notifId}`);
-              });
-          } else {
-            //this is to reject forwarded stock by hod by SIC even though api call is called hod-reject
-            await axios.post(
-              "http://localhost:5000/api/hod-reject-notification",
-              { notifId },
-              { headers: { Authorization: `Bearer ${token}` } }
-            );
-            setNotifications(notifications.filter((n) => n._id !== notifId));
-          }
-        } catch (error) {
-          console.error(`❌ Error ${action}ing HOD stock notification:`, error);
-        }
-      };
+      } catch (error) {
+        console.error(`❌ Error ${action}ing HOD stock notification:`, error);
+      }
+    };
 
-    
     return (
         <div className="notidashboard">
-          <div className="notisidebar">
-            <div className="notisidebar-item active">🔔 Notifications</div>
-          </div>
-    
-          <div className="notinotification-panel">
-            <h2>Notifications</h2>
-    
-            <div className="notinotification-list">
-              {notifications.length === 0 ? (
-                <p className="empty-message">No new notifications</p>
-              ) : (
-                <ul>
-                  {notifications.map((notif) => (
-                    <li key={notif._id} className="notinotification-item">
-                      {notif.type === "tskstockforward" && (
+            <div className="notisidebar">
+                <div className="notisidebar-item active">🔔 Notifications</div>
+            </div>
+
+            <div className="notinotification-panel">
+                <h2>Notifications</h2>
+
+                <div className="notinotification-list">
+                    {notifications.length === 0 ? (
+                        <p className="empty-message">No new notifications</p>
+                    ) : (
+                        <ul>
+                            {notifications.map((notif) => (
+                                <li key={notif._id} className="notinotification-item">
+                                    {notif.type === "principalfacultyassign" && (
+                                        <div>
+                                            <strong>VERIFIER ASSIGNED BY PRINCIPAL</strong><br />
+                                            <strong>Faculty Name:</strong> {notif.facultyname} <br />
+                                            <strong>Faculty Email:</strong> {notif.facultyemail} <br />
+                                            <strong>Premise:</strong> {notif.premise} <br />
+                                            <strong>Last Date:</strong> {new Date(notif.last_date).toLocaleDateString()} <br />
+                                            <div className="notibtn-group">
+                                                <button className="notiaccept-btn" onClick={() => handleAddacc(notif._id)}>✅ Add Account</button>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {notif.type === "verifier_report" && (
+                                        <div>
+                                            <strong>VERIFICATION REPORT BY VERIFIER</strong><br />
+                                            <strong>Verifier Name:</strong> {notif.verifier_name} <br />
+                                            <strong>Verifier Email:</strong> {notif.verifier_email} <br />
+                                            <strong>Premise:</strong> {notif.premise} <br />
+                                            <strong>Verify Date:</strong> {new Date(notif.verify_date).toLocaleDateString()} <br />
+                                            <div className="notibtn-group">
+                                                <button className="notiaccept-btn" onClick={() => handleview(notif._id)}>📄 View Report</button>
+                                            </div>
+                                        </div>
+                                    )}
+
+{notif.type === "tskstockforward" && (
                         <div>
                           <strong>TSK FORWARDING STOCK</strong>
                           <br />
@@ -271,54 +293,8 @@ const Notifications = () => {
                           </div>
                         </div>
                       )}
-    
-                    {notifications.filter((notif, index, self) =>
-                              notif.type === "principalfacultyassign" &&
-                              notif.facultyname?.trim() &&
-                              notif.facultyemail?.trim() &&
-                              notif.premise?.trim() &&
-                              notif.last_date &&
-                              !isNaN(new Date(notif.last_date).getTime()) &&
-                              self.findIndex(n => n._id === notif._id) === index // Prevent duplicate entries
-                          ).map((notif) => (
-                              notif.type === "principalfacultyassign" ? (
-                                  <li key={notif._id} className="notinotification-item">
-                                      <div>
-                                          <strong>VERIFIER ASSIGNED BY PRINCIPAL</strong><br />
-                                          <strong>faculty name:</strong> {notif.facultyname} <br />
-                                          <strong>faculty email:</strong> {notif.facultyemail} <br />
-                                          <strong>Premise:</strong> {notif.premise} <br />
-                                          <strong>Last Date:</strong> {new Date(notif.last_date).toLocaleDateString()} <br />
-    
-                                      </div>
-                                      <div className="notibtn-group">
-                                          <button className="notiaccept-btn" onClick={() => handleAddacc(notif._id)}>✅ Add Account</button>
-                                      </div>
-                                   </li>
-                              ) : null
-                      ))}
-    
-              
-                    {notifications.map((notif,index) => (
-                              notif.type === "verifier_report" ? (
-                                  <li key={ `${notif._id}-${index}`} className="notinotification-item">
-                                        <div>
-                                            <strong>VERIFICATION REPORT BY VERIFIER</strong><br />
-                                            <strong>verifier name:</strong> {notif.verifier_name} <br />
-                                            <strong>verifier email:</strong> {notif.verifier_email} <br />
-                                            <strong>Premise:</strong> {notif.premise} <br />
-                                            <strong>Verify Date:</strong> {new Date(notif.verify_date).toLocaleDateString()} <br />
-    
-                                        </div>
-                                        <div className="notibtn-group">
-                                            <button className="notiaccept-btn" onClick={() => handleview(notif._id)}>📄 View Report</button>
-                                        </div>
-                                    </li>
-                                ) : null
-                          ))}
-    
-    
-                      {notif.type === "hodstockaccept" && (
+
+{notif.type === "hodstockaccept" && (
                         <div>
                           <strong>CSE HOD accepted the Stock</strong>
                           <br />
@@ -404,14 +380,16 @@ const Notifications = () => {
                           </button>
                         </div>
                       )}
-                    </li>
-                  ))}
-                </ul>
-              )}
+
+
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
             </div>
-          </div>
         </div>
-      );
-    };
-    
-    export default Notifications;
+    );
+};
+
+export default Notifications;
