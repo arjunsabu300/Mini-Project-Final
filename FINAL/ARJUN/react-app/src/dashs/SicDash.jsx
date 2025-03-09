@@ -26,9 +26,39 @@ const SicDash = () => {
     const [username,setusername]= useState("");
     const [premisename,setPremisename]= useState("");
     const [currentdate,setdate]=useState("");
-    const [role,setRole]=useState(null);
+    const [role,setRole]=useState("");
     const [notifications, setNotifications] = useState([]);
     const navigate= useNavigate();
+
+
+    useEffect(()=>{
+        const token = sessionStorage.getItem("token"); // Retrieve token from localStorage
+        if (token) {
+          try {
+            const decoded = jwtDecode(token); // Decode token to get user info
+            console.log("Decoded Role:", decoded.designation); // Check if decoded role is correct
+            setRole(decoded.designation);
+            setTimeout(() => console.log("Updated Role:", decoded.designation), 100);
+          } catch (error) {
+            console.error("Invalid Token:", error);
+          }
+        }
+      const today = new Date().toLocaleDateString("en-GB", {
+          weekday: "short",
+          day: "2-digit",
+          month: "long",
+          year: "numeric",
+        });
+      setdate(today);
+      if(token){
+          try{
+              const decoded = jwtDecode(token);
+              setPremisename(decoded.roomname);
+          }catch(error){
+              console.error("Error decoding token : ",error);
+          }
+      }
+  },[]);
     
     useEffect(() => {
             const fetchNotifications = async () => {
@@ -53,32 +83,7 @@ const SicDash = () => {
             fetchNotifications();
         }, []);
     
-    useEffect(()=>{
-              const token = sessionStorage.getItem("token"); // Retrieve token from localStorage
-              if (token) {
-                try {
-                  const decoded = jwtDecode(token); // Decode token to get user info
-                  setRole(decoded.designation);
-                } catch (error) {
-                  console.error("Invalid Token:", error);
-                }
-              }
-            const today = new Date().toLocaleDateString("en-GB", {
-                weekday: "short",
-                day: "2-digit",
-                month: "long",
-                year: "numeric",
-              });
-            setdate(today);
-            if(token){
-                try{
-                    const decoded = jwtDecode(token);
-                    setPremisename(decoded.roomname);
-                }catch(error){
-                    console.error("Error decoding token : ",error);
-                }
-            }
-        },[]);
+    
 
     return (
         <div className="app-container">

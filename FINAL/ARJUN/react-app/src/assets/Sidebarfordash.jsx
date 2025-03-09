@@ -26,7 +26,7 @@ const Sidebardash = ({ sidebarOpen, setSidebarOpen, role }) => {
                       <li><InventoryIcon fontSize="medium"/><Link to="/stockdetails">   Stock Details</Link></li>
                       <li><UpdateIcon fontSize="medium"/> <Link to="/stockstatus"> Stock Status Update</Link> </li>
                       <li><HealthAndSafetyIcon fontSize="medium"/> <Link to="/stockwarranty"> Stock Warranty</Link></li>
-                    {role.toLowerCase() === "stock-in-charge" || role.toLowerCase() === "furniture-custodian" && (
+                      {(role.toLowerCase() === "stock-in-charge" || role.toLowerCase() === "furniture-custodian") && (
                         <li>
                             <Link to="/stocktransfer">
                                 <SendIcon fontSize="medium" /> Stock Transfer
