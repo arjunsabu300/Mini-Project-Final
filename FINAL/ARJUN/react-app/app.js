@@ -20,6 +20,17 @@ import VerificationRoutes from "./src/Backend/Verification.js";
 import reportfetchRoutes from "./src/Backend/reportfetch.js";
 import requeststockdetailsRoutes from "./src/Backend/requeststockdetails.js";
 import AssignedfacultyfetchRoutes from "./src/Backend/Assignedfacultyfetch.js";
+import mainRoutes from "./src/Backend/mainstockdetails.js";
+import forwardStockRoutes from "./src/Backend/forwardtsk.js";
+import forwardactionRoutes from "./src/Backend/forwardaction.js";
+import forwardhodRoutes from "./src/Backend/forwardstockhod.js";
+import SicStockAcceptNotfSenderRoutes from "./src/Backend/SicStockAcceptNotfSender.js";
+import hodforwardactionRoutes from "./src/Backend/hodforwardaction.js";
+import markreadRoutes from "./src/Backend/markread.js"
+import sicrejecterRoutes from "./src/Backend/sicrejecter.js";
+import roomRoutes from "./src/Backend/roomRoutes.js"
+import deleteaccRoutes from "./src/Backend/deleteacc.js";
+
 
 dotenv.config();
 const app = express();
@@ -50,6 +61,16 @@ app.use("/api/stockverify",VerificationRoutes);
 app.use("/api/report",reportfetchRoutes);
 app.use("/api/request",requeststockdetailsRoutes);
 app.use("/api/faculty",AssignedfacultyfetchRoutes);
+app.use(forwardactionRoutes);
+app.use(forwardStockRoutes);
+app.use(forwardhodRoutes);
+app.use(mainRoutes);
+app.use(SicStockAcceptNotfSenderRoutes);
+app.use(hodforwardactionRoutes);
+app.use(markreadRoutes);
+app.use(sicrejecterRoutes);
+app.use("/api/rooms", roomRoutes);
+app.use(deleteaccRoutes);
 
 
 const PORT = process.env.PORT || 5000;
