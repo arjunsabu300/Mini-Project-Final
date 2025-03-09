@@ -25,4 +25,13 @@ router.get("/allinventorys", async (req, res) => {
   }
 });
 
+router.get("/rooms", async (req, res) => {
+  try {
+    const rooms = await Room.find({}, "name room_no"); // Fetch name & room_no only
+    res.json(rooms);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch rooms" });
+  }
+});
+
 export default router;

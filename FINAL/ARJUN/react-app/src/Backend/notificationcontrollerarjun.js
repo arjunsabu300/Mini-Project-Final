@@ -8,6 +8,8 @@ import SicStockAccept from "./SicStockAccept.js";
 import SicRejectNotification from "./SicRejectNotification.js";
 import AssignfacultyNotification from "./Assignfacultyschema.js";
 import VerifyNotification from "./Verifynotificationschema.js";
+import HandoverStockNotification from "./handoverstocknotification.js";
+import StockTransferNotification from "./transferstocknotificatiion.js";
 
 
 const router = express.Router();
@@ -54,6 +56,8 @@ router.get("/api/fetch-notifications", async (req, res) => {
         const verifysnotification= await VerifyNotification.find({receiver: receiver,status: "unread",type:"verifier_report"});
 
         const stockHandoverNotifications = await HandoverStockNotification.find({ receiver, status: "unread",type: "stockhandover" });
+ 
+        const stockTransferNotifications = await StockTransferNotification.find({ receiver, status: "unread",type: "stocktransfer" });
 
         // 🔄 Process TskForwardNotifications
         const detailedTskNotifications = await Promise.all(
@@ -207,6 +211,15 @@ router.get("/api/fetch-notifications", async (req, res) => {
             createdAt: handoverNotif.createdAt,
         }));
 
+        const stockNotifications = stockTransferNotifications.map((stockNotif) => ({
+            _id: stockNotif._id,
+            type: stockNotif.type,
+            sender: stockNotif.sender,  
+            item_no: stockNotif.item_no || "N/A",   // ✅ Ensure `item_no` is included
+            status: stockNotif.status,
+            createdAt: stockNotif.date,
+        }));
+
         // ✅ Merge all notifications
         const allNotifications = [
             ...detailedTskNotifications,
@@ -218,6 +231,7 @@ router.get("/api/fetch-notifications", async (req, res) => {
             ...assignNotifications, 
             ...verifyNotifications,
             ...stockHandover,
+            ...stockNotifications,
         ];
 
         // ✅ Send processed notifications to frontend

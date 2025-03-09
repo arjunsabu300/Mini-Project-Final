@@ -13,6 +13,7 @@ const SECRET_KEY = process.env.JWT_SECRET || "your_jwt_secret";
 
 router.post("/api/accept-stock-handover", async (req, res) => {
     try {
+        console.log("hiii");
         const token = req.headers.authorization?.split(" ")[1];
         if (!token) return res.status(401).json({ error: "Unauthorized: No token provided" });
 

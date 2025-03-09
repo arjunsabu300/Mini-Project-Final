@@ -33,7 +33,9 @@ import deleteaccRoutes from "./src/Backend/deleteacc.js";
 import warrantyroutes from "./src/Backend/stockwarranty.js";
 import stockhandover from "./src/Backend/stockhandover.js";
 import handoveraction from "./src/Backend/handoveraction.js";
-
+import transfer from "./src/Backend/stocktranfer.js";
+import transferactionroute from "./src/Backend/transferaction.js";
+import transferlog from "./src/Backend/transferlog.js";
 dotenv.config();
 const app = express();
 
@@ -76,7 +78,9 @@ app.use(deleteaccRoutes);
 app.use("/api/stock", warrantyroutes);
 app.use("/api", stockhandover);
 app.use(handoveraction);
-
+app.use("/api/ststock", transfer);
+app.use(transferactionroute);
+app.use("/api", transferlog);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

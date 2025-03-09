@@ -32,7 +32,8 @@ import MainStockdetails from "./MainStock/MainStockdetails";
 import ForwardStockTsk from "./ForwardStockTsk/ForwardStockTsk";
 import ForwardStockHOD from "./ForwardStockHOD/ForwardStockHOD";
 import AddStockforward from "./addstocksicforward/Addstockforward";
-import NewStockSystem from "./newstocksystem/NewStockSystem"
+import NewStockSystem from "./newstocksystem/NewStockSystem";
+import Transferlog from "./Transferlog/transferlog";
 
 function App() {
   return (
@@ -70,6 +71,7 @@ function App() {
         <Route path="/forwardstockhod" element={<ForwardStockHOD/>}/>
         <Route path="/addstockforward" element={<AddStockforward/>}/>
         <Route path="/newstocksystem" element={<NewStockSystem />} />
+        <Route path="/transferlog" element={<Transferlog/>}/>
       </Routes>
     </Router>
   );

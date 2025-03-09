@@ -54,6 +54,14 @@ const Notifications = () => {
                     if (notif.type === "verifier_report") {
                         return notif.verifier_email && notif.verifier_name && notif.verify_date;
                     }
+                    if (notif.type === "stockhandover") {
+                      return notif.room_no && notif.sender;
+                      
+                  }
+                  if (notif.type === "stocktransfer") {
+                    return notif.item_no && notif.sender;
+                    
+                }
                     return false;
                 });
 
@@ -228,6 +236,48 @@ const Notifications = () => {
       }
     };
 
+    const handleActions = async (notifId, action, type, additionalData) => {
+      try {
+          const token = sessionStorage.getItem("token");
+          if (!token) {
+              console.error("❌ No token found. User is not authenticated.");
+              return;
+          }
+
+          console.log(`📩 Handling action for notifId: ${notifId}, action: ${action}, type: ${type}, data:`, additionalData);
+
+          let endpoint = "";
+          let payload = { notifId };
+
+          if (type === "stocktransfer") {
+              endpoint = action === "accept" 
+                  ? "http://localhost:5000/api/accept-stock-transfer"
+                  : "http://localhost:5000/api/reject-stock-transfer";
+              payload.item_no = additionalData;
+          } else if (type === "stockhandover") {
+              endpoint = action === "accept" 
+                  ? "http://localhost:5000/api/accept-stock-handover"
+                  : "http://localhost:5000/api/reject-stock-handover";
+              payload.room_no = additionalData;
+          }
+
+          const response = await axios.post(endpoint, payload, {
+              headers: { Authorization: `Bearer ${token}` }
+          });
+
+          console.log(`✅ Notification ${notifId} ${action}ed.`, response.data);
+
+          // ✅ Remove handled notification from UI
+          if (type === "stocktransfer") {
+            setNotifications(notifications.filter((n) => n._id !== notifId));
+          } else if (type === "stockhandover") {
+            setNotifications(notifications.filter((n) => n._id !== notifId));
+          }
+      } catch (error) {
+          console.error(`❌ Error ${action}ing notification:`, error);
+      }
+  };
+
     return (
         <div className="notidashboard">
             <div className="notisidebar">
@@ -381,9 +431,48 @@ const Notifications = () => {
                         </div>
                       )}
 
+                        {notif.type === "stockhandover" && (
+                        <div>
+                          <strong>Stock Handover Notification</strong>
+                          <br />
+                          <strong>Sender:</strong> {notif.sender} <br />
+                          <strong>Room_no:</strong> {notif.room_no} <br />
+                          <strong>Room name:</strong> {notif.room_name} <br />
+                          <div className="notibtn-group">
+                                            <button className="notiaccept-btn" onClick={() => handleActions(notif._id, "accept", "stockhandover", notif.room_no)}>
+                                                ✅ Accept Handover
+                                            </button>
+                                            <button className="notidecline-btn" onClick={() => handleActions(notif._id, "reject", "stockhandover", notif.room_no)}>
+                                                ❌ Reject Handover
+                                            </button>
+                                        </div>
+                        </div>
+                      )}
+
+                        {notif.type === "stocktransfer" && (
+                        <div>
+                          <strong>Stock Transfer Notification</strong>
+                          <br />
+                          <strong>Sender:</strong> {notif.sender}  is transfering stock <br />
+                          <strong>Item no:</strong> {notif.item_no} <br />
+          
+                          <div className="notibtn-group">
+                                            <button className="notiaccept-btn" onClick={() => handleActions(notif._id, "accept", "stocktransfer", notif.item_no)}>
+                                                ✅ Accept Transfer
+                                            </button>
+                                            <button className="notidecline-btn" onClick={() => handleActions(notif._id, "reject", "stocktransfer", notif.item_no)}>
+                                                ❌ Reject Transfer
+                                            </button>
+                                        </div>
+                        </div>
+                      )}
+                                 
+
+
 
                                 </li>
                             ))}
+
                         </ul>
                     )}
                 </div>

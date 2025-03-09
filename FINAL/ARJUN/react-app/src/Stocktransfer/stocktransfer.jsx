@@ -1,85 +1,167 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import "./Stocktransfer.css";
-import { FaSearch, FaUser, FaBars, FaBell, FaFilter } from "react-icons/fa";
-import Button from '@mui/material/Button';
-import SendIcon from '@mui/icons-material/Send';
+import { FaSearch, FaBell, FaFilter } from "react-icons/fa";
+import Button from "@mui/material/Button";
+import SendIcon from "@mui/icons-material/Send";
 import AccountMenu from "../assets/Usermenu";
-import HomeIcon from '@mui/icons-material/Home';
-import InventoryIcon from '@mui/icons-material/Inventory';
-import UpdateIcon from '@mui/icons-material/Update';
-import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety';
-import { Link } from "react-router-dom";
-import {jwtDecode} from "jwt-decode";
 import Sidebars from "../assets/sidebar";
+import { jwtDecode } from "jwt-decode";
 
 const Stocktransfer = () => {
-  const [stocks, setStocks] = useState([
-    { id: "#7876", invoice: "30/06/2024", indent: "01/07/2024", name: "CPU", description: "Intel i5 12th gen", price: "20000", Premise: "" },
-    { id: "#7877", invoice: "30/06/2024", indent: "01/07/2024", name: "CPU", description: "Intel i5 12th gen", price: "21000", Premise: "" },
-    { id: "#7878", invoice: "28/06/2024", indent: "30/06/2024", name: "Monitor", description: "Monitor DELL", price: "4000", Premise: "" },
-    { id: "#7879", invoice: "28/06/2024", indent: "30/06/2024", name: "Monitor", description: "Monitor DELL", price: "4000", Premise: "" },
-    { id: "#7880", invoice: "28/06/2024", indent: "30/06/2024", name: "Monitor", description: "Monitor DELL", price: "4000", Premise: "" },
-  ]);
-
+  const [stocks, setStocks] = useState([]); // Holds stock details
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
-  const [role,setRole]=useState(null);
+  const [role, setRole] = useState(null);
+  const [inventoryList, setInventoryList] = useState([]); // Stores room inventory
 
-  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
-  const toggleFilterMenu = () => setFilterOpen(!filterOpen);
+  useEffect(() => {
+    const token = sessionStorage.getItem("token");
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        setRole(decoded.designation);
+        fetchStockData();
+        fetchInventory();
+      } catch (error) {
+        console.error("Invalid Token:", error);
+      }
+    }
+  }, []);
 
-  const handleStatusChange = (index, newpremise) => {
-    const updatedstocktransfer = [...stocks];
-    updatedstocktransfer[index].Premise = newpremise;
-    setStocks(updatedstocktransfer);
+  // ✅ Fetch room inventory (Room name + Room No)
+  const fetchInventory = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/Room/rooms"); // Updated API route
+      console.log("Fetched inventory data:", response.data);
+      setInventoryList(response.data);
+    } catch (error) {
+      console.error("Error fetching inventory:", error);
+    }
   };
 
-   useEffect(() => {
-      const token = sessionStorage.getItem("token"); // Retrieve token from localStorage
-      if (token) {
-        try {
-          const decoded = jwtDecode(token); // Decode token to get user info
-          setRole(decoded.designation);
-        } catch (error) {
-          console.error("Invalid Token:", error);
-        }
+  // ✅ Fetch stock data
+  const fetchStockData = async () => {
+    try {
+      const token = sessionStorage.getItem("token");
+      const response = await fetch("http://localhost:5000/api/stock/stockdetails", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+      const data = await response.json();
+      
+      // Ensure we are using item_no instead of indent_no
+      setStocks(data.map(stock => ({
+        ...stock,
+        item_no: stock.item_no || stock.indent_no, // Fallback if API still returns indent_no
+      })));
+    } catch (error) {
+      console.error("Error fetching stock data:", error);
+    }
+  };
+
+  // ✅ Handle room selection
+  const handleRoomChange = (index, newRoomName) => {
+    const selectedRoom = inventoryList.find((room) => room.name === newRoomName);
+    if (!selectedRoom) {
+      console.error("⚠️ Room not found for:", newRoomName);
+      return;
+    }
+
+    setStocks((prevStocks) =>
+      prevStocks.map((stock, i) =>
+        i === index ? { ...stock, room_no: selectedRoom.room_no, room_name: newRoomName } : stock
+      )
+    );
+  };
+
+  // ✅ Batch Transfer for Stock
+  const handleTransfer = async () => {
+    try {
+      const token = sessionStorage.getItem("token");
+      if (!token) {
+        alert("User not authenticated.");
+        return;
       }
-    }, []);
+
+      const decoded = jwtDecode(token);
+      const senderEmail = decoded.email;
+
+      const transfers = stocks
+        .filter((stock) => stock.room_no && stock.item_no)
+        .map(stock => ({
+          item_no: stock.item_no,
+          room_no: Number(stock.room_no), // Ensure room_no is a number
+        }));
+
+      if (transfers.length === 0) {
+        alert("Please select at least one valid item with a room.");
+        return;
+      }
+
+      console.log("🚀 Sending batch transfer:", JSON.stringify({ transfers, senderEmail }));
+
+      const response = await fetch("http://localhost:5000/api/ststock/transfer", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ transfers, senderEmail }),
+      });
+
+      const result = await response.json();
+      console.log("✅ Transfer Response:", result);
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to transfer stock.");
+      }
+
+      alert("All selected items have been transferred successfully.");
+      fetchStockData(); // Refresh stock data after transfers
+    } catch (error) {
+      console.error("❌ Error transferring stock:", error);
+    }
+  };
 
   return (
-    <div className="stocktransfercontainer">
-      {/* Sidebar */}
+    <div className="sdstocks-container">
       <Sidebars sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} role={role} />
 
-      {/* Main Content */}
-      <div className="stmain-content">
+      <div className="sdmain-content">
         <header className="headerstocktransfer">
-          <h2>Stock Tranfer</h2>
+          <h2>Stock Transfer</h2>
           <div className="stsearch-bar">
             <FaSearch className="stsearch-icon" />
             <input type="text" placeholder="Search Item ID" />
             <input type="date" />
-            <button className="stfilter-btn" onClick={toggleFilterMenu}>
+            <button className="stfilter-btn" onClick={() => setFilterOpen(!filterOpen)}>
               <FaFilter /> Filter
             </button>
           </div>
           <div className="sttransferbtn">
-          <Button variant="contained" endIcon={<SendIcon />}>
-            Transfer</Button>
+            <Button variant="contained" endIcon={<SendIcon />} onClick={handleTransfer}>
+              Transfer
+            </Button>
           </div>
           <div className="stheader-icons">
             <FaBell className="stnotification-icon" />
             <div className="stuser-menu">
-              <AccountMenu/>
+              <AccountMenu />
             </div>
-            
           </div>
         </header>
 
-        {/* Filter Dropdown */}
         {filterOpen && (
           <div className="stfilter-menu">
-            <label>Product:
+            <label>
+              Product:
               <select className="stfilter">
                 <option value="all">All</option>
                 <option value="CPU">CPU</option>
@@ -89,38 +171,37 @@ const Stocktransfer = () => {
           </div>
         )}
 
-        {/* Stock Table */}
         <table className="ststock-table">
           <thead>
             <tr>
-              <th>Item ID</th>
+              <th>Item Number</th> {/* ✅ Updated from "Indent Number" */}
               <th>Date of Invoice</th>
-              <th>Date of Indent</th>
               <th>Item Name</th>
               <th>Description</th>
               <th>Price</th>
-              <th>Tranfer To</th>
+              <th>Transfer To (Room No)</th>
             </tr>
           </thead>
           <tbody>
             {stocks.map((stock, index) => (
               <tr key={index}>
-                <td>{stock.id}</td>
-                <td>{stock.invoice}</td>
-                <td>{stock.indent}</td>
-                <td>{stock.name}</td>
+                <td>{stock.item_no}</td> {/* ✅ Updated from stock.indent_no */}
+                <td>{new Date(stock.date_of_invoice).toLocaleDateString()}</td>
+                <td>{stock.item_name}</td>
                 <td>{stock.description}</td>
                 <td>{stock.price}</td>
                 <td>
                   <select
-                    className="premise-dropdown" value={stock.Premise}
-                    onChange={(e) => handleStatusChange(index, e.target.value)}
+                    className="room-dropdown"
+                    value={stock.room_name || ""}
+                    onChange={(e) => handleRoomChange(index, e.target.value)}
                   >
-                    <option value="">Select Premise</option>
-                    <option value="Lab 1">Lab 1</option>
-                    <option value="Lab 2">Lab 2</option>
-                    <option value="Lab 3">Lab 3</option>
-                    <option value="Lab 4">Lab 4</option>
+                    <option value="">Select Room</option>
+                    {inventoryList.map((room) => (
+                      <option key={room._id} value={room.name}>
+                        {room.name} (No: {room.room_no})
+                      </option>
+                    ))}
                   </select>
                 </td>
               </tr>
