@@ -30,7 +30,7 @@ import markreadRoutes from "./src/Backend/markread.js"
 import sicrejecterRoutes from "./src/Backend/sicrejecter.js";
 import roomRoutes from "./src/Backend/roomRoutes.js"
 import deleteaccRoutes from "./src/Backend/deleteacc.js";
-
+import warrantyroutes from "./src/Backend/stockwarranty.js";
 
 dotenv.config();
 const app = express();
@@ -71,6 +71,7 @@ app.use(markreadRoutes);
 app.use(sicrejecterRoutes);
 app.use("/api/rooms", roomRoutes);
 app.use(deleteaccRoutes);
+app.use("/api/stock", warrantyroutes);
 
 
 const PORT = process.env.PORT || 5000;
