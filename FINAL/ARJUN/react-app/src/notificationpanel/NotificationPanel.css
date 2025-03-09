@@ -68,6 +68,7 @@
 .notibtn-group {
     display: flex;
     gap: 10px;
+    margin-left: 800px;
 }
 
 .notiaccept-btn, .notidecline-btn {
