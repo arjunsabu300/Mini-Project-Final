@@ -8,6 +8,8 @@ import {jwtDecode} from "jwt-decode";
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
+import Modal from '@mui/material/Modal';
+import Box from '@mui/material/Box';
 
 const handleLogout = (navigate) => {
     sessionStorage.removeItem("token"); // Remove the token from storage
@@ -38,7 +40,7 @@ const SicDash = () => {
             const decoded = jwtDecode(token); // Decode token to get user info
             console.log("Decoded Role:", decoded.designation); // Check if decoded role is correct
             setRole(decoded.designation);
-            setTimeout(() => console.log("Updated Role:", decoded.designation), 100);
+            // setTimeout(() => console.log("Updated Role:", decoded.designation), 100);
           } catch (error) {
             console.error("Invalid Token:", error);
           }
@@ -124,7 +126,6 @@ const Dashboard = ({notifications,navigate}) => (
                 <Link to = "/stockclears"><Button className='action-button' variant="contained">Stock Clearance</Button></Link>
                 <Button onClick={()=>{handlesendmail()}} className='action-button' variant="contained">Send Email</Button>
                 <Link to="/transferlog"><Button className='action-button' variant="contained">Transfer Log Details</Button></Link>
-                <Button className='action-button' variant="contained">Stock Handover</Button>
 
         </div>
         <LogoutButton navigate={navigate} />

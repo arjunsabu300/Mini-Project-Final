@@ -116,7 +116,7 @@ const Dashboard = ({notifications,navigate,setHandoverPopup }) => (
                 <Link to="/maintenance"><Button className='action-button' variant="contained">Maintenance List</Button></Link>
                 <Link to="/maintenancehist"><Button className='action-button' variant="contained">Maintenance History</Button></Link>
                 <Button onClick={()=>{handlesendmail()}} className='action-button' variant="contained">Send Email</Button>
-                <Button className='action-button' variant="contained">Transfer Log Details</Button>
+                <Link to="/transferlog"><Button className='action-button' variant="contained">Transfer Log Details</Button></Link>
                 <Button className='action-button' variant="contained" onClick={() => setHandoverPopup(true)}>Stock Handover</Button>
         </div>
         <LogoutButton navigate={navigate} />
