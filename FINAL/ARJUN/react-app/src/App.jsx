@@ -27,6 +27,11 @@ import Reportdetails from "./Reportverifier/Reportverify";
 import Reportlist from "./reportlist/reportlist";
 import StockRequest from "./Requeststock/Requeststock";
 import Assignedfacultydetails from "./assignfacultylist/assignfacultylist";
+import TskDash from "./dashs/TskDash";
+import MainStockdetails from "./MainStock/MainStockdetails";
+import ForwardStockTsk from "./ForwardStockTsk/ForwardStockTsk";
+import ForwardStockHOD from "./ForwardStockHOD/ForwardStockHOD";
+import AddStockforward from "./addstocksicforward/Addstockforward";
 
 function App() {
   return (
@@ -58,6 +63,11 @@ function App() {
         <Route path="/reportlist" element={<Reportlist/>}/>
         <Route path="/stockdetreq" element={<StockRequest/>}/>
         <Route path="/facultylist" element={<Assignedfacultydetails/>}/>
+        <Route path="/Tskdash" element={<TskDash/>}/>
+        <Route path="/mainstockdetails" element={<MainStockdetails/>}/>
+        <Route path="/forwardstocktsk" element={<ForwardStockTsk/>}/>
+        <Route path="/forwardstockhod" element={<ForwardStockHOD/>}/>
+        <Route path="/addstockforward" element={<AddStockforward/>}/>
       </Routes>
     </Router>
   );

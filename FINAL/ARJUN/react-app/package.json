@@ -23,7 +23,7 @@
     "express-rate-limit": "^7.5.0",
     "jsonwebtoken": "^9.0.2",
     "jspdf": "^3.0.0",
-    "jspdf-autotable": "^3.8.4",
+    "jspdf-autotable": "^5.0.2",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.474.0",
     "mongoose": "^8.12.1",

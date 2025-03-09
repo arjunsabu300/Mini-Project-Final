@@ -90,6 +90,23 @@
     color: #fff;
 }
 
+.notimark-btn {
+    background: #60da95;
+    color: #fff;
+    border: none;
+    padding: 7px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px; /* Adjust font size if needed */
+}
+
+.notimark-btn .tick {
+    font-size: 16px; /* Adjust size of the tick mark */
+}
+
 /* Empty Message */
 .empty-message {
     text-align: center;
