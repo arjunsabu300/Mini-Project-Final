@@ -1,0 +1,98 @@
+/* General Styles */
+.notidashboard {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+}
+
+.notidashboard {
+    display: flex;
+    height: 100vh;
+    background: #f4f4f4;
+}
+
+/* Sidebar */
+.notisidebar {
+    width: 80px;
+    background: #2c3e50;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 20px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.notisidebar-item {
+    width: 100%;
+    padding: 20px;
+    color: #ecf0f1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.notisidebar-item.active {
+    background: #34495e;
+}
+
+/* Notification Panel */
+.notinotification-panel {
+    flex: 1;
+    background: #fff;
+    margin: 20px;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+}
+
+.notinotification-panel h2 {
+    margin-bottom: 15px;
+}
+
+/* Notification Items */
+.notinotification-item {
+    background: #ecf0f1;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Buttons */
+.notibtn-group {
+    display: flex;
+    gap: 10px;
+}
+
+.notiaccept-btn, .notidecline-btn {
+    border: none;
+    padding: 7px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.notiaccept-btn {
+    background: #27ae60;
+    color: #fff;
+}
+
+.notidecline-btn {
+    background: #e74c3c;
+    color: #fff;
+}
+
+/* Empty Message */
+.empty-message {
+    text-align: center;
+    font-size: 14px;
+    color: #777;
+}
