@@ -42,12 +42,12 @@ const TransferLogDetails = () => {
       console.error("Error fetching transfer logs:", error);
     }
   };
-  console.log(transferLogs);
+  console.log(transferLogs)
 
   // Export to PDF
   const exportToPDF = () => {
-    const doc = new jsPDF();
-    doc.text("Transfer Log Details", 14, 10);
+    const docu = new jsPDF();
+    docu.text("Transfer Log Details", 14, 10);
     const tableColumn = ["Item No", "Sender", "Receiver", "Sender Room", "Receiver Room", "Date"];
     const tableRows = transferLogs.map((log) => [
       log.item_no,
@@ -58,13 +58,13 @@ const TransferLogDetails = () => {
       new Date(log.date).toLocaleDateString(),
     ]);
 
-    doc.autoTable({
+    docu.autoTable({
       head: [tableColumn],
       body: tableRows,
       startY: 20,
     });
 
-    doc.save("Transfer_Log_Details.pdf");
+    docu.save("Transfer_Log_Details.pdf");
   };
 
   // Export to Excel
