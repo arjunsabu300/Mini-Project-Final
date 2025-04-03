@@ -42,6 +42,7 @@ const TransferLogDetails = () => {
       console.error("Error fetching transfer logs:", error);
     }
   };
+  console.log(transferLogs);
 
   // Export to PDF
   const exportToPDF = () => {
@@ -100,10 +101,6 @@ const TransferLogDetails = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <input className="datetype" type="date" />
-          <button className="tldfilter-btn" onClick={() => setFilterOpen(!filterOpen)}>
-            <FaFilter /> Filter
-          </button>
 
           <div className="tldexport-buttons">
             <button className="tldexport-btn" onClick={() => setExportOpen(!exportOpen)}>
@@ -144,7 +141,7 @@ const TransferLogDetails = () => {
               </tr>
             ) : (
               transferLogs
-                .filter((log) => log.item_no.toLowerCase().includes(searchTerm.toLowerCase()))
+                .filter((log) => log.item_no && typeof log.item_no === "string" && log.item_no.toLowerCase().includes(searchTerm.toLowerCase()))
                 .map((log, index) => (
                   <tr key={index}>
                     <td>{log.item_no}</td>
