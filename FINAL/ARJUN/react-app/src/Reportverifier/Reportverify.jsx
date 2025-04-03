@@ -8,7 +8,7 @@ import Button from "@mui/material/Button";
 import { useSearchParams } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import jsPDF from "jspdf";
-import "jspdf-autotable";
+import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 
 const Reportdetails = () => {
@@ -119,7 +119,11 @@ const Reportdetails = () => {
         new Date(report.date_of_verify).toLocaleDateString("en-GB"),
       ]);
   
-      doc.autoTable({ head: [tableColumn], body: tableRows, startY: 40 });
+      autoTable(doc, { // Use autoTable function
+            head: [tableColumn],
+            body: tableRows,
+            startY: 20,
+          });
       doc.save("Verification_Report.pdf");
     };
   

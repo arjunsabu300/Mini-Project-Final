@@ -7,7 +7,7 @@ import { jwtDecode } from "jwt-decode";
 import Sidebars from "../assets/sidebar";
 import Button from "@mui/material/Button";
 import jsPDF from "jspdf";
-import "jspdf-autotable";
+import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 
 const TransferLogDetails = () => {
@@ -58,7 +58,7 @@ const TransferLogDetails = () => {
       new Date(log.date).toLocaleDateString(),
     ]);
 
-    docu.autoTable({
+    autoTable(docu, { // Use autoTable function
       head: [tableColumn],
       body: tableRows,
       startY: 20,
