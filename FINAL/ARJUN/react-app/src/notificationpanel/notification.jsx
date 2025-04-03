@@ -54,6 +54,9 @@ const Notifications = () => {
                     if (notif.type === "verifier_report") {
                         return notif.verifier_email && notif.verifier_name && notif.verify_date;
                     }
+                    if (notif.type === "reportapprove") {
+                      return notif.sender && notif.type;
+                  }
                     if (notif.type === "stockhandover") {
                       return notif.room_no && notif.sender;
                       
@@ -464,6 +467,24 @@ const Notifications = () => {
                                                 ❌ Reject Transfer
                                             </button>
                                         </div>
+                        </div>
+                      )}
+
+                      {/* new */}
+                      {notif.type === "reportapprove" && (
+                        <div>
+                          <strong>VERIFICATION REPORT APPROVED </strong>
+                          <br />
+                          <strong>Eligible items may be cleared as needed</strong>
+                          <br/>
+                          <strong>From Principal </strong>
+                          <br/>
+                          <button
+                            className="notimark-btn"
+                            onClick={() => handleMarkRead(notif._id)}
+                          >
+                            ✔️
+                          </button>
                         </div>
                       )}
                                  
